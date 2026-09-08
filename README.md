@@ -1,2 +1,2 @@
 # book.it
-Projekt Witryny i Aplikacje KOCHAM SIE UCZYC I NASZEGO PANA OD INFRMATYKI DARKA
+Projekt Witryny i Aplikacje 
