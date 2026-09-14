@@ -344,9 +344,9 @@ Projekt realizowany w ramach przedmiotu **Tworzenie stron i aplikacji internetow
 
 Autorzy:
 
-- Imię Nazwisko
-- Imię Nazwisko
+- Kacper Księżopolski
+- Krystian Kurkus
 
 ## Status projektu
 
-Projekt jest obecnie w trakcie realizacji.
+□□□□□□□□□□ 0%
