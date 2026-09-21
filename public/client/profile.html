@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mój profil — book.it</title>
+  <link rel="stylesheet" href="../../css/main.css">
+  <script src="../../js/app.js" defer></script>
+</head>
+<body class="dashboard-body">
+  <a class="skip-link" href="#main">Przejdź do treści</a>
+  <header class="site-header dashboard-header">
+    <div class="container header-inner">
+      <a class="brand" href="../index.html"><span class="brand-mark">b.</span><span>book<span class="brand-dot">.</span>it</span></a>
+      <nav class="dashboard-nav" aria-label="Nawigacja konta"><a href="profile.html" aria-current="page">Mój profil</a><a href="#reservations">Rezerwacje</a></nav>
+      <a class="button button-secondary button-small" href="../auth/login-client.html">Wyloguj (demo)</a>
+    </div>
+  </header>
+  <main class="container dashboard-shell" id="main">
+    <aside class="sidebar" aria-label="Menu klienta">
+      <nav class="sidebar-nav"><a href="profile.html" aria-current="page">Dane profilu</a><a href="#reservations">Moje rezerwacje</a><a href="../index.html">Odkrywaj firmy</a></nav>
+    </aside>
+    <div class="main-content">
+      <div class="page-title"><div><p class="eyebrow">Konto klienta</p><h1>Mój profil</h1><p>Zarządzaj danymi i zdjęciem widocznym na Twoim koncie.</p></div></div>
+
+      <section class="panel" aria-labelledby="avatar-title" data-avatar-group data-name-source="#profile-name">
+        <div class="profile-summary">
+          <div class="avatar" data-avatar-preview><span data-avatar-initials>JK</span></div>
+          <div><h2 id="avatar-title">Jan Kowalski</h2><p>Avatar lub automatyczne inicjały</p></div>
+        </div>
+        <div class="upload-row">
+          <label class="field-label" for="client-avatar">Wybierz avatar</label>
+          <input class="file-input" id="client-avatar" type="file" accept="image/png,image/jpeg,image/webp" data-avatar-input>
+          <button class="button button-danger button-small" type="button" data-avatar-remove>Usuń avatar</button>
+        </div>
+        <p class="field-hint">Podgląd działa wyłącznie lokalnie i znika po odświeżeniu strony. Przy braku zdjęcia wyświetlane są inicjały z imienia i nazwiska.</p>
+      </section>
+
+      <section class="panel" aria-labelledby="details-title">
+        <h2 id="details-title">Podstawowe dane</h2>
+        <p class="panel-subtitle">Zmiany w formularzu są demonstracyjne i nie są zapisywane.</p>
+        <form class="form-grid form-grid-2" data-demo-form data-demo-message="To prototyp — dane profilu nie zostały zapisane.">
+          <div class="field field-full"><label for="profile-name">Imię i nazwisko</label><input id="profile-name" name="name" value="Jan Kowalski" autocomplete="name" data-profile-name required></div>
+          <div class="field"><label for="profile-email">Adres e-mail</label><input id="profile-email" name="email" type="email" value="jan.kowalski@example.com" autocomplete="email" required></div>
+          <div class="field"><label for="profile-phone">Telefon</label><input id="profile-phone" name="phone" type="tel" value="+48 500 123 456" autocomplete="tel" required></div>
+          <div class="form-actions field-full"><button class="button" type="submit">Zapisz zmiany</button><button class="button button-secondary" type="reset">Anuluj</button></div>
+        </form>
+      </section>
+
+      <section class="panel" id="reservations" aria-labelledby="reservations-title">
+        <h2 id="reservations-title">Moje rezerwacje</h2>
+        <p class="panel-subtitle">Tutaj pojawią się nadchodzące wizyty i historia klienta.</p>
+        <div class="placeholder-block"><strong>Lista rezerwacji powstanie w kolejnym etapie</strong>Backend zadba o to, aby klient widział wyłącznie własne dane.</div>
+      </section>
+    </div>
+  </main>
+</body>
+</html>
