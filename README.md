@@ -1,6 +1,37 @@
-# book.it — System rezerwacji usług
+# book.it
 
-Szkolny projekt systemu rezerwacji usług. Obecna wersja obejmuje wyłącznie **Etap 1**: uporządkowany szkielet aplikacji oraz projekt relacyjnej bazy danych. Termin etapu: 25.09.2026.
+book.it to internetowa platforma do rezerwacji usług, która umożliwia klientom znalezienie firmy, sprawdzenie jej oferty oraz zarezerwowanie dostępnego terminu online.
+
+W przeciwieństwie do klasycznego systemu rezerwacji przeznaczonego dla jednej firmy, book.it obsługuje wielu niezależnych usługodawców w ramach jednej aplikacji. Każda firma może posiadać własny profil, ofertę usług, pracowników, godziny dostępności oraz rezerwacje.
+
+Projekt powstaje w ramach przedmiotu **Tworzenie stron i aplikacji internetowych**.
+
+## O projekcie
+
+Celem projektu jest stworzenie uniwersalnego systemu rezerwacji, z którego mogą korzystać różnego rodzaju firmy świadczące usługi, między innymi:
+
+- salony fryzjerskie,
+- salony kosmetyczne,
+- warsztaty samochodowe,
+- serwisy komputerowe,
+- studia fotograficzne,
+- firmy sprzątające,
+- szkoły językowe,
+- korepetytorzy,
+- trenerzy,
+- inni usługodawcy pracujący w oparciu o rezerwacje terminów.
+
+Użytkownik korzysta z jednego konta book.it i za jego pomocą może rezerwować usługi w różnych firmach dostępnych na platformie.
+
+Każda firma posiada własną ofertę i pracowników. Poszczególni pracownicy mogą wykonywać różne usługi oraz posiadać własne godziny pracy i dostępność.
+
+Podstawowy proces rezerwacji wygląda następująco:
+
+```text
+Firma -> Usługa -> Pracownik -> Data -> Godzina -> Potwierdzenie
+```
+
+System automatycznie wyznacza dostępne terminy na podstawie czasu trwania wybranej usługi, godzin pracy pracownika oraz istniejących rezerwacji.
 
 ## Autorzy
 
@@ -13,17 +44,16 @@ Szkolny projekt systemu rezerwacji usług. Obecna wersja obejmuje wyłącznie **
 - HTML5
 - CSS3
 - JavaScript
-- MySQL/MariaDB
-- Git/GitHub
+- MySQL
+- GitHub
 
 ## Aktualny zakres
 
 Projekt zawiera:
 
-- minimalną strukturę aplikacji;
 - znormalizowany model relacyjnej bazy danych;
 - kompletny skrypt SQL z ograniczeniami integralności i danymi testowymi;
-- diagram ERD;
+- czytelny diagram bazy danych;
 - prostą, responsywną stronę startową.
 
 Logowanie, rejestracja, obsługa ról w aplikacji, panele użytkowników i proces rezerwowania **nie należą do Etapu 1** i nie są jeszcze zaimplementowane.
@@ -32,13 +62,13 @@ Logowanie, rejestracja, obsługa ról w aplikacji, panele użytkowników i proce
 
 ```text
 .
+├── assets/
+│   └── diagram_baza.png
 ├── database/
 │   └── database.sql
 ├── docs/
 │   └── ERD.md
 ├── public/
-│   ├── assets/
-│   │   └── .gitkeep
 │   ├── css/
 │   │   └── style.css
 │   ├── js/
@@ -48,6 +78,10 @@ Logowanie, rejestracja, obsługa ról w aplikacji, panele użytkowników i proce
 ├── .gitignore
 └── README.md
 ```
+
+## Diagram bazy danych
+
+![Diagram bazy](assets/diagram_baza.png)
 
 ## Uruchomienie
 
@@ -74,10 +108,6 @@ Skrypt SQL dodaje następujące konta demonstracyjne:
 | Pracownik | `piotr.wisniewski@bookit.test` |
 
 Wartości w kolumnie `password` są przykładowymi hashami, nie hasłami jawnymi. Logowanie zostanie zaimplementowane dopiero w Etapie 2.
-
-## Workflow Git
-
-Większe funkcje należy rozwijać na osobnych branchach, a zmiany dzielić na małe, logiczne commity. Każdy członek zespołu powinien commitować własną pracę. Historia projektu ma odzwierciedlać rzeczywistą, regularną pracę zespołu.
 
 ## Dokumentacja
 
