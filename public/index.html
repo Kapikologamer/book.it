@@ -1,152 +1,183 @@
 <!doctype html>
 <html lang="pl">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="book.it — wygodne rezerwowanie usług lokalnych firm w jednym miejscu.">
-  <title>book.it — rezerwuj usługi po swojemu</title>
-  <link rel="stylesheet" href="../css/main.css">
-  <script src="../js/app.js" defer></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="book.it — prosty system rezerwacji usług.">
+    <title>book.it — System rezerwacji usług</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <a class="skip-link" href="#main">Przejdź do treści</a>
-  <header class="site-header">
-    <div class="container header-inner">
-      <a class="brand" href="index.html" aria-label="book.it — strona główna">
-        <span class="brand-mark">b.</span>
-        <span>book<span class="brand-dot">.</span>it</span>
-      </a>
-      <nav class="site-nav" aria-label="Główna nawigacja" data-menu>
-        <a href="#kategorie">Kategorie</a>
-        <a href="#firmy">Popularne firmy</a>
-        <a href="#jak-to-dziala">Jak to działa</a>
-        <a href="auth/login-business.html">Dla firm</a>
-      </nav>
-      <div class="nav-actions">
-        <a class="button button-secondary" href="auth/login-client.html">Zaloguj się</a>
-        <a class="button" href="auth/register-client.html">Załóż konto</a>
-        <button class="menu-toggle" type="button" aria-label="Otwórz menu" aria-expanded="false" data-menu-toggle>☰</button>
-      </div>
-    </div>
-  </header>
+    <header class="site-header">
+        <div class="container header-content">
+            <a class="logo" href="#start" aria-label="book.it — strona główna">book<span>.it</span></a>
+            <nav aria-label="Główna nawigacja">
+                <a href="#o-systemie">O systemie</a>
+                <a href="#model-bazy">Model bazy</a>
+                <a href="#technologie">Technologie</a>
+            </nav>
+        </div>
+    </header>
 
-  <main id="main">
-    <section class="hero">
-      <div class="container hero-grid">
-        <div>
-          <p class="eyebrow">Usługi blisko Ciebie</p>
-          <h1>Twój czas. <span>Dobry termin.</span></h1>
-          <p class="hero-lead">Odkrywaj lokalne firmy, porównuj usługi i wybieraj dogodny termin — szybko, przejrzyście i w jednym miejscu.</p>
-          <form class="search-box" data-demo-form data-demo-message="Wyszukiwanie zostanie uruchomione po podłączeniu bazy firm i usług.">
-            <label class="field-label" for="hero-search" hidden>Usługa lub firma</label>
-            <input id="hero-search" type="search" placeholder="Czego szukasz? np. fryzjer, masaż, serwis" required>
-            <button class="button" type="submit">Znajdź usługę</button>
-          </form>
-          <div class="hero-actions">
-            <a class="text-link" href="#firmy">Przeglądaj inspiracje →</a>
-            <a class="text-link" href="auth/register-business.html">Dołącz jako firma →</a>
-          </div>
-        </div>
-        <div class="hero-visual" aria-label="Przykładowa karta wyboru terminu">
-          <div class="booking-card">
-            <div class="booking-card-head">
-              <div>
-                <p class="micro-label">Twój termin</p>
-                <strong>Studio Forma</strong>
-              </div>
-              <span class="badge">Dostępne dziś</span>
-            </div>
-            <div class="service-line">
-              <div>
-                <p class="micro-label">Usługa</p>
-                <strong>Trening personalny</strong>
-              </div>
-              <strong>120 zł</strong>
-            </div>
-            <p class="micro-label">Wybierz godzinę</p>
-            <div class="time-chips" aria-hidden="true">
-              <span>10:30</span><span>13:00</span><span>17:30</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
+    <main>
+        <section class="hero" id="start">
+            <div class="container hero-content">
+                <div class="hero-copy">
+                    <p class="eyebrow">System rezerwacji usług</p>
+                    <h1>Umów wizytę prosto i wygodnie.</h1>
+                    <p class="hero-text">
+                        book.it porządkuje usługi, pracowników, ich dostępność i rezerwacje
+                        w jednym czytelnym systemie.
+                    </p>
+                    <a class="button" href="#model-bazy">Zobacz model danych</a>
+                </div>
 
-    <section class="section section-alt" id="kategorie">
-      <div class="container">
-        <div class="section-heading">
-          <div>
-            <p class="eyebrow">Kategorie</p>
-            <h2>Znajdź usługę na każdą okazję</h2>
-          </div>
-          <p>Od codziennej pielęgnacji po wsparcie specjalisty — wybierz kategorię i odkryj firmy w swojej okolicy.</p>
-        </div>
-        <div class="category-grid">
-          <article class="category-card"><span class="category-icon" aria-hidden="true">✦</span><h3>Uroda</h3><p>Fryzjerzy, barberzy i kosmetologia.</p></article>
-          <article class="category-card"><span class="category-icon" aria-hidden="true">●</span><h3>Zdrowie</h3><p>Fizjoterapia, masaże i konsultacje.</p></article>
-          <article class="category-card"><span class="category-icon" aria-hidden="true">↗</span><h3>Sport</h3><p>Trenerzy, zajęcia i studia ruchu.</p></article>
-          <article class="category-card"><span class="category-icon" aria-hidden="true">⌁</span><h3>Motoryzacja</h3><p>Warsztaty, detailing i serwis.</p></article>
-        </div>
-      </div>
-    </section>
-
-    <section class="section" id="firmy">
-      <div class="container">
-        <div class="section-heading">
-          <div>
-            <p class="eyebrow">W pobliżu</p>
-            <h2>Miejsca, do których chce się wracać</h2>
-          </div>
-          <p>Przykładowe karty prezentują przyszły katalog firm. Rezerwowanie terminów nie jest jeszcze aktywne.</p>
-        </div>
-        <div class="company-grid">
-          <article class="company-card">
-            <div class="company-cover"></div>
-            <div class="company-content">
-              <div class="company-line"><span class="avatar">NS</span><span class="badge">★ 4,9</span></div>
-              <h3>Nova Studio</h3><p>Fryzjerstwo i pielęgnacja</p>
-              <div class="company-meta"><span>Warszawa, Mokotów</span><span>od 70 zł</span></div>
+                <div class="appointment-card" aria-label="Przykładowa rezerwacja">
+                    <div class="appointment-top">
+                        <p>Najbliższa wizyta</p>
+                        <span>Potwierdzona</span>
+                    </div>
+                    <h2>Strzyżenie damskie</h2>
+                    <dl>
+                        <div>
+                            <dt>Termin</dt>
+                            <dd>28 września, 10:00</dd>
+                        </div>
+                        <div>
+                            <dt>Pracownik</dt>
+                            <dd>Anna Nowak</dd>
+                        </div>
+                        <div>
+                            <dt>Czas</dt>
+                            <dd>60 minut</dd>
+                        </div>
+                    </dl>
+                </div>
             </div>
-          </article>
-          <article class="company-card">
-            <div class="company-cover"></div>
-            <div class="company-content">
-              <div class="company-line"><span class="avatar">RF</span><span class="badge">★ 4,8</span></div>
-              <h3>Ruch &amp; Forma</h3><p>Trening i fizjoterapia</p>
-              <div class="company-meta"><span>Kraków, Kazimierz</span><span>od 100 zł</span></div>
-            </div>
-          </article>
-          <article class="company-card">
-            <div class="company-cover"></div>
-            <div class="company-content">
-              <div class="company-line"><span class="avatar">AS</span><span class="badge">★ 5,0</span></div>
-              <h3>Auto Strefa</h3><p>Serwis i detailing</p>
-              <div class="company-meta"><span>Gdańsk, Wrzeszcz</span><span>od 150 zł</span></div>
-            </div>
-          </article>
-        </div>
-      </div>
-    </section>
+        </section>
 
-    <section class="section section-alt" id="jak-to-dziala">
-      <div class="container">
-        <div class="section-heading">
-          <div><p class="eyebrow">Prosty proces</p><h2>Od pomysłu do terminu w trzech krokach</h2></div>
-        </div>
-        <div class="steps-grid">
-          <article class="step-card"><span class="step-number">1</span><h3>Wyszukaj</h3><p>Wybierz usługę lub firmę i zawęź wyniki do swoich potrzeb.</p></article>
-          <article class="step-card"><span class="step-number">2</span><h3>Dopasuj termin</h3><p>Wskaż pracownika, datę i jedną z dostępnych godzin.</p></article>
-          <article class="step-card"><span class="step-number">3</span><h3>Potwierdź</h3><p>Sprawdź szczegóły i zarządzaj rezerwacją ze swojego konta.</p></article>
-        </div>
-      </div>
-    </section>
-  </main>
+        <section class="section" id="o-systemie">
+            <div class="container">
+                <div class="section-heading">
+                    <p class="eyebrow">Najważniejsze elementy</p>
+                    <h2>Dane potrzebne do obsługi wizyt</h2>
+                    <p>Model łączy klientów, ofertę usług, zespół i terminy rezerwacji.</p>
+                </div>
 
-  <footer class="site-footer">
-    <div class="container footer-inner">
-      <a class="brand" href="index.html"><span class="brand-mark">b.</span><span>book<span class="brand-dot">.</span>it</span></a>
-      <p>Prototyp interfejsu — operacje rezerwacji nie są jeszcze aktywne.</p>
-    </div>
-  </footer>
+                <div class="feature-grid">
+                    <article class="feature-card">
+                        <span class="feature-number">01</span>
+                        <h3>Usługi i kategorie</h3>
+                        <p>Każda usługa ma kategorię, cenę, czas trwania i informację o aktywności.</p>
+                    </article>
+                    <article class="feature-card">
+                        <span class="feature-number">02</span>
+                        <h3>Pracownicy</h3>
+                        <p>Pracownicy mają własną dostępność i mogą realizować wiele różnych usług.</p>
+                    </article>
+                    <article class="feature-card">
+                        <span class="feature-number">03</span>
+                        <h3>Rezerwacje</h3>
+                        <p>Rezerwacja wskazuje klienta, pracownika, usługę, termin i aktualny status.</p>
+                    </article>
+                </div>
+
+                <div class="stats" aria-label="Podsumowanie modelu danych">
+                    <div><strong>7</strong><span>tabel</span></div>
+                    <div><strong>4</strong><span>statusy rezerwacji</span></div>
+                    <div><strong>1:N</strong><span>relacje podstawowe</span></div>
+                    <div><strong>N:M</strong><span>pracownicy i usługi</span></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section database-section" id="model-bazy">
+            <div class="container">
+                <div class="section-heading">
+                    <p class="eyebrow">Relacyjna baza danych</p>
+                    <h2>Jak połączone są najważniejsze tabele</h2>
+                    <p>Każdy blok przedstawia tabelę, a opis między blokami określa typ relacji.</p>
+                </div>
+
+                <div class="database-diagram" aria-label="Uproszczony diagram relacji bazy danych">
+                    <div class="relation-row">
+                        <article class="entity-card">
+                            <h3>users</h3>
+                            <p>Klienci, pracownicy i administratorzy</p>
+                        </article>
+                        <div class="relation-label"><span>1 : 0..1</span><i aria-hidden="true">→</i></div>
+                        <article class="entity-card">
+                            <h3>employees</h3>
+                            <p>Profile pracowników powiązane z kontami</p>
+                        </article>
+                        <div class="relation-label"><span>1 : N</span><i aria-hidden="true">→</i></div>
+                        <article class="entity-card">
+                            <h3>employee_availability</h3>
+                            <p>Dni i godziny dostępności pracowników</p>
+                        </article>
+                    </div>
+
+                    <div class="relation-row">
+                        <article class="entity-card">
+                            <h3>service_categories</h3>
+                            <p>Kategorie porządkujące ofertę</p>
+                        </article>
+                        <div class="relation-label"><span>1 : N</span><i aria-hidden="true">→</i></div>
+                        <article class="entity-card">
+                            <h3>services</h3>
+                            <p>Nazwa, cena i czas trwania usługi</p>
+                        </article>
+                        <div class="relation-label"><span>1 : N</span><i aria-hidden="true">→</i></div>
+                        <article class="entity-card entity-card-accent">
+                            <h3>reservations</h3>
+                            <p>Klient, pracownik, usługa i termin</p>
+                        </article>
+                    </div>
+
+                    <div class="many-to-many">
+                        <span>employees</span>
+                        <strong>N : M przez employee_services</strong>
+                        <span>services</span>
+                    </div>
+                </div>
+
+                <div class="status-list">
+                    <h3>Statusy rezerwacji</h3>
+                    <ul>
+                        <li>Oczekująca <code>pending</code></li>
+                        <li>Potwierdzona <code>confirmed</code></li>
+                        <li>Zrealizowana <code>completed</code></li>
+                        <li>Anulowana <code>cancelled</code></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="technologie">
+            <div class="container technology-content">
+                <div>
+                    <p class="eyebrow">Technologie</p>
+                    <h2>Prosty zestaw narzędzi</h2>
+                    <p>Projekt korzysta z popularnych technologii bez dodatkowych frameworków i zależności.</p>
+                </div>
+                <ul class="technology-list">
+                    <li>PHP</li>
+                    <li>HTML5</li>
+                    <li>CSS3</li>
+                    <li>JavaScript</li>
+                    <li>MySQL / MariaDB</li>
+                </ul>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container footer-content">
+            <a class="logo" href="#start">book<span>.it</span></a>
+            <p>System rezerwacji usług · <span id="current-year">2026</span></p>
+        </div>
+    </footer>
+
+    <script src="js/app.js"></script>
 </body>
 </html>
