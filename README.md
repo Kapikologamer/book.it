@@ -1,33 +1,85 @@
-# book.it
+# book.it — System rezerwacji usług
 
-`book.it` to projekt wielofirmowej platformy do rezerwacji usług. Klienci będą mogli wyszukiwać firmy, przeglądać ich ofertę i rezerwować terminy, a firmy — zarządzać profilem, usługami, pracownikami i dostępnością.
-
-## Status projektu
-
-Obecny etap: **prototyp interfejsu / fundamenty**.
-
-Repozytorium zawiera statyczną makietę najważniejszych widoków. Formularze, przyciski zapisu i operacje na danych są demonstracyjne — backend, baza danych oraz autoryzacja zostaną dodane w kolejnych etapach.
-
-## Planowane technologie
-
-- PHP
-- HTML5, CSS3 i JavaScript
-- MySQL lub MariaDB
-- Git i GitHub
-
-## Uruchomienie prototypu
-
-Nie są wymagane zależności ani proces budowania. Otwórz plik `public/index.html` bezpośrednio w przeglądarce lub uruchom prosty lokalny serwer, na przykład:
-
-```bash
-php -S localhost:8000 -t public
-```
-
-Następnie przejdź do `http://localhost:8000/index.html`.
-
-Szczegółowe wymagania i plan rozwoju znajdują się w [`docs/PROJECT_REQUIREMENTS.md`](docs/PROJECT_REQUIREMENTS.md).
+Szkolny projekt systemu rezerwacji usług. Obecna wersja obejmuje wyłącznie **Etap 1**: uporządkowany szkielet aplikacji oraz projekt relacyjnej bazy danych. Termin etapu: 25.09.2026.
 
 ## Autorzy
 
 - Kacper Księżopolski
 - Krystian Kurkus
+
+## Technologie
+
+- PHP
+- HTML5
+- CSS3
+- JavaScript
+- MySQL/MariaDB
+- Git/GitHub
+
+## Aktualny zakres
+
+Projekt zawiera:
+
+- minimalną strukturę aplikacji;
+- znormalizowany model relacyjnej bazy danych;
+- kompletny skrypt SQL z ograniczeniami integralności i danymi testowymi;
+- diagram ERD;
+- prostą, responsywną stronę startową.
+
+Logowanie, rejestracja, obsługa ról w aplikacji, panele użytkowników i proces rezerwowania **nie należą do Etapu 1** i nie są jeszcze zaimplementowane.
+
+## Struktura katalogów
+
+```text
+.
+├── database/
+│   └── database.sql
+├── docs/
+│   └── ERD.md
+├── public/
+│   ├── assets/
+│   │   └── .gitkeep
+│   ├── css/
+│   │   └── style.css
+│   ├── js/
+│   │   └── app.js
+│   ├── index.html
+│   └── index.php
+├── .gitignore
+└── README.md
+```
+
+## Uruchomienie
+
+1. Sklonuj repozytorium i przejdź do jego katalogu.
+2. Zaimportuj `database/database.sql` do MySQL lub MariaDB. Skrypt utworzy bazę `book_it`, tabele i dane testowe.
+3. Uruchom serwer PHP z katalogiem `public` jako katalogiem głównym:
+
+   ```bash
+   php -S localhost:8000 -t public
+   ```
+
+   Alternatywnie umieść projekt w katalogu obsługiwanym przez XAMPP i skieruj serwer na folder `public`.
+4. Otwórz `http://localhost:8000` w przeglądarce.
+
+## Dane testowe
+
+Skrypt SQL dodaje następujące konta demonstracyjne:
+
+| Rola | E-mail |
+| --- | --- |
+| Administrator | `admin@bookit.test` |
+| Klient | `klient@bookit.test` |
+| Pracownik | `anna.nowak@bookit.test` |
+| Pracownik | `piotr.wisniewski@bookit.test` |
+
+Wartości w kolumnie `password` są przykładowymi hashami, nie hasłami jawnymi. Logowanie zostanie zaimplementowane dopiero w Etapie 2.
+
+## Workflow Git
+
+Większe funkcje należy rozwijać na osobnych branchach, a zmiany dzielić na małe, logiczne commity. Każdy członek zespołu powinien commitować własną pracę. Historia projektu ma odzwierciedlać rzeczywistą, regularną pracę zespołu.
+
+## Dokumentacja
+
+- [Diagram i opis relacji](docs/ERD.md)
+- [Skrypt tworzący bazę](database/database.sql)
