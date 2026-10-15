@@ -1,6 +1,6 @@
 # book.it
 
-Aplikacja online: bookit.freedev.app
+Aplikacja online: [bookit.freedev.app](https://bookit.freedev.app/)
 
 **book.it** to internetowa platforma do rezerwacji usług, która umożliwia klientom znalezienie firmy, zapoznanie się z jej ofertą oraz zarezerwowanie dostępnego terminu online.
 
