@@ -9,4 +9,6 @@ node_modules/
 Thumbs.db
 *.log
 .runtime/
+storage/media/*
+!storage/media/.gitkeep
 

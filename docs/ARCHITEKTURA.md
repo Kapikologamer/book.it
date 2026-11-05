@@ -1,40 +1,79 @@
-# Architektura Etapu 2
+# Architektura book.it — Etap 3
 
-Jedna tożsamość = jeden rekord users. Publiczna rejestracja zawsze tworzy users.role=client. Rola admin jest rolą administratora platformy; employee zachowano dla kompatybilności Etapu 1. Dostęp do obszaru pracownika wymaga dodatkowo aktywnego członkostwa employee. Dostęp właściciela wymaga członkostwa owner konkretnej aktywnej firmy. Właściciel nie uzyskuje globalnego admina.
+## Granice ról i danych
 
-company_memberships ma PK(user_id,company_id), więc w jednej firmie użytkownik ma jedną rolę. Jeden użytkownik może mieć członkostwa w wielu firmach. Obecny profil employees nadal zachowuje UNIQUE(user_id) z Etapu 1 (jeden profil pracownika). Kategorie usług są globalnym słownikiem. Usługi i pracownicy mają company_id, a złożone FK employee_services zabraniają powiązania pracownika z usługą innej firmy. Rezerwacja dziedziczy firmę przez parę pracownik–usługa; dostępność przez pracownika.
+Jedna tożsamość odpowiada jednemu rekordowi `users`. `users.role='admin'` jest rolą globalną. Publiczna rejestracja klienta i firmy tworzy konto typu `client`; właścicielstwo wynika wyłącznie z aktywnego `company_memberships.role='owner'` aktywnej firmy. Dostęp pracownika wymaga członkostwa `employee` oraz profilu `employees`.
+
+Właściciel może należeć do wielu firm i przed wejściem do panelu wybiera `company_id`. Identyfikator z URL nie nadaje uprawnień: `management_context()` ponownie sprawdza konto, firmę, członkostwo i rolę. Administrator może pracować globalnie albo jawnie zawęzić kontekst do firmy.
+
+Kategorie są słownikiem globalnym. `services` i `employees` mają `company_id`; złożone FK w `employee_services` uniemożliwiają połączenie rekordów różnych firm. Rezerwacja nie duplikuje `company_id` — firma wynika ze spójnej pary pracownik–usługa.
 
 ## Przepływ żądania
 
 ```text
 public/index.php
-  → app/bootstrap.php (konfiguracja sesji, nagłówki, neutralne błędy)
-  → app/controller.php (zamknięta lista tras, tożsamość, uprawnienia, CSRF)
-  → walidacja w security.php
-  → przypadek użycia / zapytania PDO w accounts.php
-  → MySQL/MariaDB
-  → 303 redirect
-  → GET + wspólny layout i komponenty formularzy
+  → app/bootstrap.php
+  → app/controller.php
+      ├─ konto i uwierzytelnianie → app/accounts.php
+      └─ admin/company → app/management/controller.php
+           → management_context (tożsamość i zakres)
+           → allowlista pól + CSRF
+           → transakcja
+           → app/management/domain.php (walidacja i mutacja)
+           → MySQL/MariaDB + admin_audit_logs
+           → COMMIT → 303 → GET
+  → app/management/read.php (filtrowany odczyt, KPI, paginacja)
+  → app/views/layout.php + app/views/management.php
 ```
 
-Mały projekt nie ma oddzielnej klasy repozytorium dla każdej tabeli: accounts.php skupia dostęp do kont i transakcje. Wszystkie parametry zapytań przechodzą przez PDO prepare/execute. Wyjątkiem dynamicznej nazwy kolumny jest wewnętrzny bool wybierający password albo pin_hash; nie pochodzi ona z formularza.
+Routing pozostaje zamkniętą listą opartą na `?route=...`. Każdy zapis wymaga POST, tokena CSRF, jawnej allowlisty pól i świeżego sprawdzenia aktora w transakcji. Id obiektu jest odczytywane z kontrolowanego parametru GET, a jego własność jest sprawdzana na podstawie rekordu z bazy. Po sukcesie stosowany jest PRG 303. Dane formularza przechowywane po błędzie nie obejmują sekretów.
 
-Każdy POST przechodzi wspólny CSRF, a trasy chronione także sprawdzenie zwykłej sesji. Pola user_id, role, company_id, active i auth_version w POST są odrzucane. Edycja profilu używa wyłącznie użytkownika z sesji. Guard firmy wykonuje zapytanie z user_id, company_id, role, aktywnością członkostwa i firmy przed renderowaniem nazwy.
+## Moduły
 
-## Trasy i moduły
+- `app/management/controller.php` — mapa tras, kontekst admin/owner, metody HTTP, CSRF, allowlisty, eksport i PRG;
+- `app/management/domain.php` — przypadki użycia kategorii, usług, pracowników, zaproszeń, grafiku, nieobecności, rezerwacji, moderacji, profilu i audytu;
+- `app/management/read.php` — wspólne listy z przygotowanymi parametrami, filtry, paginacja, KPI, wykresy i reguła gotowości;
+- `app/management/media.php` — walidacja, dekodowanie i ponowny zapis obrazów poza document root;
+- `app/media.php` — odczyt tylko nazw mediów faktycznie przypisanych do firmy;
+- `app/views/management*.php` — wspólne formularze, tabele, statusy, potwierdzenia i layout obu paneli.
 
-Wszystkie trasy są parametrem route w ./index.php względem katalogu aplikacji. Zasoby, linki, formularze i nagłówki Location używają ścieżek względnych, również przy uruchomieniu w podkatalogu. Mapowanie UI i akcji znajduje się w README. GET pokazuje formularz; POST zapisuje i wykonuje 303. Niepoprawny formularz zachowuje tylko jawne pola i komunikaty w jednorazowym stanie form. Jedna implementacja komponentów obejmuje wszystkie widoki hasła i PIN-u.
+Logika jest współdzielona przez admina i ownera. Różnicę stanowi wyłącznie autoryzowany kontekst: globalny admin może mieć `company_id=NULL`, owner zawsze pracuje w konkretnej firmie. Kategorie, użytkownicy i lista firm są dostępne wyłącznie globalnemu administratorowi.
 
-Po rejestracji klient trafia do onboarding/client, właściciel do onboarding/company. Po logowaniu kolejność: admin → właściciel → członek employee → klient. Pierwsza własna firma jest domyślna; company_id może wskazać inną, ale tylko po autoryzacji. Onboarding pozostaje szkieletem i nie zmienia pending na ready.
+## Mutacje i integralność
 
-## Dwa różne stany sesji
+Mutacje wymagają transakcji utworzonej przez kontroler. W transakcji blokowany jest aktor, odpowiednie rekordy i — dla operacji kont — lista administratorów. Wpis audytu powstaje w tej samej transakcji co zmiana; rollback usuwa oba. Plik uploadu jest kasowany po rollbacku, a stary obraz dopiero po udanym commitcie.
 
-Zwykła sesja auth: id, version, started, last. Dane użytkownika i uprawnienia odczytywane są z DB w każdym żądaniu. Brak haseł, PIN-ów i kopii roli w sesji.
+- kategoria powiązana z usługą nie jest fizycznie usuwana;
+- usługa z rezerwacją może być dezaktywowana, ale nie usunięta;
+- usunięte przypisanie pracownik–usługa staje się nieaktywne, aby zachować złożony FK rezerwacji;
+- aktywna rezerwacja blokuje zmianę grafiku lub nieobecność, która pozostawiłaby ją poza dostępnością;
+- status rezerwacji podlega zamkniętej mapie przejść;
+- wyłączenie konta zwiększa `auth_version`, a ostatni aktywny administrator jest chroniony.
 
-Sesja recovery: id, version, expires. Nie zawiera auth, więc nie przechodzi żadnego guardu zwykłego konta. Ma 300 sekund i wyłącznie prawo ustawienia hasła. Warunkowy UPDATE według auth_version inkrementuje wersję: wcześniejsze sesje i granty stają się nieważne, a drugi równoległy zapis z tej samej wersji nie może się udać. Po resecie nie następuje automatyczne logowanie.
+## Dashboard i listy
 
-Ustawienia hasła/PIN-u zachowują tylko własną sesję przez odczyt nowej wersji i rotację ID. Zmiana PIN-u wymaga obecnego hasła. Przy zmianie hasła wymagane jest obecne hasło albo ważny ograniczony grant.
+KPI i wykresy nie są zapisane na stałe. `management_dashboard()` agreguje aktualne wiersze. Data „dzisiaj” jest liczona w `Europe/Warsaw`. Wykres siedmiu dni zawiera również dni z zerową liczbą, statusy obejmują wszystkie rezerwacje, a popularność usługi jest liczbą rezerwacji wszystkich statusów. W kontekście firmy każde zapytanie wykorzystuje wcześniej zweryfikowane `company_id`.
 
-## Rozwój
+Listy stosują stabilne sortowanie z `id`, 25 rekordów na stronę, przygotowane parametry i allowlisty filtrów. Filtry pozostają w GET. Eksport rezerwacji używa tej samej definicji zapytania i zakresu, ogranicza wynik do 10 000 wierszy oraz zapisuje audyt eksportu.
 
-Pełne profile działalności, uploady, usługi, grafik i rezerwacje pozostają na kolejne etapy. Nowe akcje muszą używać tych samych guardów i sprawdzać tenant przed zapytaniami o jego dane. Obecne role nie są edytowalne przez publiczne formularze.
+## Onboarding firmy
+
+`onboarding_status` nie jest deklaracją ustawianą ręcznie. Po każdej mutacji zarządzania `management_refresh_readiness()` wylicza go ponownie. `ready` wymaga jednocześnie:
+
+1. aktywnej firmy oraz niepustych: nazwy, krótkiego opisu, telefonu, e-maila, miasta i adresu;
+2. aktywnej usługi w aktywnej kategorii;
+3. aktywnego konta, członkostwa i profilu pracownika;
+4. aktywnego przypisania tej usługi pracownikowi;
+5. co najmniej jednego poprawnego przedziału godzin pracy.
+
+Utrata dowolnego warunku przywraca `pending`. Po zalogowaniu owner jednej gotowej firmy trafia do `company/dashboard`; owner firmy niegotowej do `onboarding/company`; właściciel wielu firm do `company/choose`.
+
+## Sesje i odzyskiwanie
+
+Zwykła sesja `auth` przechowuje wyłącznie id, wersję, początek i ostatnią aktywność. Użytkownik oraz uprawnienia są czytane ponownie z DB. Sesja wygasa po 30 minutach bezczynności lub 8 godzinach i jest unieważniana przez zmianę `auth_version`.
+
+Stan `recovery` jest oddzielnym, pięciominutowym grantem do ustawienia hasła. Nie przechodzi guardów panelu i nie tworzy zwykłej sesji. Po resecie użytkownik loguje się ponownie.
+
+## Świadome ograniczenia
+
+`employees.user_id` pozostaje unikalne, więc jedno konto może mieć profil pracownika tylko w jednej firmie. System administruje istniejącymi rezerwacjami, ale nie tworzy ich po stronie klienta. Wyznaczanie slotów, transakcyjna rezerwacja i pełny panel pracownika należą do Etapu 4.
