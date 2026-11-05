@@ -1,5 +1,7 @@
 # book.it
 
+
+
 **book.it** to internetowa platforma do rezerwacji usług, która umożliwia klientom znalezienie firmy, zapoznanie się z jej ofertą oraz zarezerwowanie dostępnego terminu online.
 
 W przeciwieństwie do tradycyjnych systemów rezerwacji przeznaczonych dla jednej firmy, book.it obsługuje wielu niezależnych usługodawców w ramach jednej aplikacji. Każda firma może posiadać własny profil, ofertę usług, pracowników, godziny dostępności oraz rezerwacje.
@@ -166,7 +168,6 @@ Konta demonstracyjne są przeznaczone wyłącznie do testów lokalnych. PIN moż
 
 ![Diagram bazy danych](assets/diagram_baza.png)
 
-*Diagram przedstawia pierwotny schemat bazy danych z Etapu 1. Aktualny model uwzględnia również firmy, członkostwa i dodatkowe elementy systemu kont.*
 
 ## Dokumentacja
 
