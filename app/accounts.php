@@ -47,10 +47,14 @@ function company_access(PDO $pdo, int $userId, int $companyId, string $role): ?a
 function destination(PDO $pdo, array $user): string
 {
     if ($user['role'] === 'admin') {
-        return 'admin';
+        return 'admin/dashboard';
     }
-    if (memberships($pdo, (int) $user['id'], 'owner')) {
-        return 'onboarding/company';
+    $owned = memberships($pdo, (int) $user['id'], 'owner');
+    if ($owned) {
+        if (count($owned) > 1) {
+            return 'company/choose';
+        }
+        return $owned[0]['onboarding_status'] === 'ready' ? 'company/dashboard' : 'onboarding/company';
     }
     if (memberships($pdo, (int) $user['id'], 'employee')) {
         return 'employee';

@@ -62,3 +62,48 @@ document.querySelectorAll('[data-pin]').forEach((wrapper) => {
 
 const errorSummary = document.querySelector('.error-summary');
 if (errorSummary) errorSummary.focus();
+
+document.querySelectorAll('[data-mg-preview]').forEach((output) => {
+    const input = document.querySelector(`#mg-${CSS.escape(output.dataset.mgPreview)}`);
+    if (!input) return;
+    const update = () => { output.textContent = input.value.trim(); };
+    input.addEventListener('input', update);
+});
+
+['logo', 'banner'].forEach((name) => {
+    const input = document.querySelector(`#mg-${name}`);
+    const image = document.querySelector(`[data-mg-image="${name}"]`);
+    const remove = document.querySelector(`[name="remove_${name}"]`);
+    const initials = name === 'logo' ? document.querySelector('[data-mg-initials]') : null;
+    if (!input || !image) return;
+    let objectUrl = null;
+    const updateFallback = (hidden) => {
+        if (initials) initials.hidden = !hidden;
+    };
+    input.addEventListener('change', () => {
+        if (objectUrl) URL.revokeObjectURL(objectUrl);
+        const file = input.files && input.files[0];
+        if (!file || !file.type.startsWith('image/')) return;
+        objectUrl = URL.createObjectURL(file);
+        image.src = objectUrl;
+        image.hidden = false;
+        updateFallback(false);
+        if (remove) remove.checked = false;
+    });
+    if (remove) {
+        remove.addEventListener('change', () => {
+            image.hidden = remove.checked;
+            updateFallback(remove.checked);
+            if (remove.checked) input.value = '';
+        });
+    }
+});
+
+const companyName = document.querySelector('#mg-name');
+const companyInitials = document.querySelector('[data-mg-initials]');
+if (companyName && companyInitials) {
+    companyName.addEventListener('input', () => {
+        const words = companyName.value.trim().split(/\s+/u).filter(Boolean).slice(0, 2);
+        companyInitials.textContent = words.map((word) => Array.from(word)[0] || '').join('').toLocaleUpperCase('pl') || 'BI';
+    });
+}

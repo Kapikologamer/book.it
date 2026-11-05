@@ -22,6 +22,7 @@ unset($_SESSION['flash']);
     <?php if ($user): ?>
         <a href="<?= url(destination(db(), $user)) ?>">Mój obszar</a>
         <a href="<?= url('account') ?>">Moje konto</a>
+        <a href="<?= url('account/invitations') ?>">Zaproszenia</a>
         <form action="<?= url('logout') ?>" method="post" class="inline-form"><?= csrf_field() ?><button class="link-button">Wyloguj</button></form>
     <?php else: ?>
         <a href="<?= url('login') ?>">Zaloguj się</a>
@@ -31,7 +32,9 @@ unset($_SESSION['flash']);
 </div></header>
 <main id="main">
 <?php if ($notice): ?><div class="container notice" role="status"><?= e($notice) ?></div><?php endif ?>
-<?php if ($route === 'home'): ?>
+<?php if (isset($management)): ?>
+<?php require __DIR__ . '/management.php'; ?>
+<?php elseif ($route === 'home'): ?>
 <section class="hero"><div class="container hero-content">
     <div class="hero-copy"><p class="eyebrow">Klienci i niezależne firmy</p>
         <h1>Twoje plany.<br>Jedno miejsce.</h1>
@@ -49,7 +52,7 @@ unset($_SESSION['flash']);
 </div></section>
 <section class="section container"><div class="section-heading"><p class="eyebrow">book.it</p><h2>Jedna platforma, różne potrzeby.</h2></div>
 <div class="feature-grid"><article class="feature-card"><span class="feature-number">01 / KLIENT</span><h3>Własne konto</h3><p>Twoje dane i ustawienia bezpieczeństwa w jednym miejscu.</p></article>
-<article class="feature-card"><span class="feature-number">02 / FIRMA</span><h3>Własna przestrzeń</h3><p>Konto właściciela połączone z firmą. Pełna konfiguracja działalności jest w przygotowaniu.</p></article>
+<article class="feature-card"><span class="feature-number">02 / FIRMA</span><h3>Własna przestrzeń</h3><p>Profil marki, oferta, zespół i godziny pracy w jednym panelu firmy.</p></article>
 <article class="feature-card"><span class="feature-number">03 / ZESPÓŁ</span><h3>Dostęp pracownika</h3><p>Osobny obszar dostępny członkom zespołu przypisanym do firmy.</p></article></div></section>
 <?php elseif ($route === 'error'): ?>
 <section class="page container"><h1><?= e($title) ?></h1><p><?= e($message) ?></p><a class="button" href="./index.php">Strona główna</a></section>
@@ -60,7 +63,7 @@ unset($_SESSION['flash']);
 <p class="muted">Zmiana hasła jest dostępna po zalogowaniu. Jeśli nie pamiętasz hasła, użyj PIN-u bezpieczeństwa, aby odzyskać dostęp do konta.</p>
 <p>Poprawny PIN otwiera tylko tryb ustawienia nowego hasła na 5 minut. Pełne konto będzie dostępne po zwykłym zalogowaniu.</p>
 <?php elseif ($route === 'reset'): ?><p>Ustaw nowe hasło. Po zapisaniu zaloguj się ponownie.</p>
-<?php elseif ($route === 'register/company'): ?><p>Zacznij od podstaw. Dane działalności, logo i ofertę uzupełnisz w kolejnych etapach.</p>
+<?php elseif ($route === 'register/company'): ?><p>Zacznij od podstaw. Po rejestracji uzupełnisz dane działalności, logo, ofertę i zespół.</p>
 <?php elseif ($route === 'register/client'): ?><p>Jedno konto dla wielu firm. Na początek potrzebujemy kilku podstawowych danych.</p>
 <?php elseif ($route === 'account'): ?><div class="identity"><span class="avatar"><?= e(initials($user)) ?></span><div><strong><?= e($user['name'] . ' ' . $user['surname']) ?></strong><p><?= e($user['email']) ?></p></div></div>
 <p>E-mail jest identyfikatorem konta. W tym etapie edytujesz imię, nazwisko i telefon.</p>
@@ -99,16 +102,10 @@ endif ?>
 <section class="page container"><p class="eyebrow">Twój obszar</p><h1><?= e($title) ?></h1>
 <div class="identity"><span class="avatar"><?= e(initials($user)) ?></span><div><h2>Cześć, <?= e($user['name']) ?>!</h2><p class="muted"><?= e($user['email']) ?></p></div></div>
 <?php if (!$user['pin_hash']): ?><p class="notice">Twoje konto nie ma jeszcze PIN-u. <a href="<?= url('pin') ?>">Ustaw go po potwierdzeniu hasła</a>, aby umożliwić odzyskiwanie dostępu.</p><?php endif ?>
-<?php if ($route === 'onboarding/company'): ?>
-<article class="feature-card"><p class="eyebrow"><?= $company['onboarding_status'] === 'pending' ? 'Konfiguracja firmy nieukończona' : 'Konfiguracja ukończona' ?></p><h2><?= e($company['name']) ?></h2>
-<p>W kolejnych etapach pojawią się: logo, baner, opis, dane firmy, pracownicy, usługi i dostępność.</p>
-<p class="muted">Ta strona pokazuje stan Twojej firmy. Formularze pełnej konfiguracji są w przygotowaniu.</p></article>
-<?php elseif ($route === 'onboarding/client'): ?>
+<?php if ($route === 'onboarding/client'): ?>
 <article class="feature-card"><h2>Nick / avatar — konfiguracja w przygotowaniu</h2><p>Na razie Twoim avatarem są inicjały. Podstawowe dane możesz już zmieniać w ustawieniach konta.</p></article>
 <?php elseif ($route === 'employee'): ?>
 <div class="feature-card"><h2>Twój zespół</h2><ul><?php foreach ($employeeCompanies as $item): ?><li><?= e($item['name']) ?></li><?php endforeach ?></ul><p>Grafik i obsługa rezerwacji pojawią się w kolejnych etapach.</p></div>
-<?php elseif ($route === 'admin'): ?>
-<div class="feature-card"><h2>Dostęp administratora platformy</h2><p>Twoje uprawnienie zostało zweryfikowane. Narzędzia administracyjne będą dodane w kolejnym etapie.</p></div>
 <?php endif ?>
 <p><a class="button" href="<?= url('account') ?>">Przejdź do ustawień konta</a></p>
 </section>
