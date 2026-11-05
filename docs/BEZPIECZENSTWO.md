@@ -1,4 +1,4 @@
-# Bezpieczeństwo
+# Bezpieczeństwo book.it — Etap 3
 
 ## Hasła i PIN
 
@@ -40,10 +40,28 @@ Każdy POST ma kryptograficzny token CSRF porównywany hash_equals, w tym login,
 
 Właściciel firmy nie jest globalnym administratorem. company_id w URL jest sprawdzane przez aktywne członkostwo; role nie pochodzą z formularza. Konto i firma są tworzone atomowo, z ROLLBACK w razie błędu. Ochrona dotyczy endpointów, nie tylko linków w menu.
 
+Nowe trasy zarządzania mają osobne allowlisty pól dla każdej operacji. Nie przyjmują `company_id`, `user_id`, roli ani aktywności z POST jako dowodu uprawnień. Kontroler sprawdza stronę i POST niezależnie, a logika domenowa ponownie odczytuje aktora oraz obiekt z blokadą `FOR UPDATE`. Owner może operować tylko na rekordzie, którego firma odpowiada zweryfikowanemu kontekstowi. Zmiana identyfikatora w URL kończy się odmową bez ujawnienia rekordu innego tenanta.
+
+Operacje dezaktywacji, usunięcia i statusu wymagają jawnego pola potwierdzenia, ale bezpieczeństwo nie zależy od interfejsu: serwer sprawdza CSRF, rolę, własność, bieżący stan i zależności. Usługi oraz przypisania używane w historii nie są kasowane. Ostatni aktywny administrator jest chroniony w transakcji.
+
+## Audyt, eksport i filtry
+
+Udana mutacja i jej `admin_audit_logs` są zapisywane w jednej transakcji. Odmowa lub rollback nie tworzy wpisu sukcesu. Dziennik nie zapisuje haseł, PIN-ów, tokenów CSRF ani treści plików; podsumowania mają limit 1000 znaków i są kodowane przy renderowaniu.
+
+Eksport rezerwacji ponownie sprawdza aktualną sesję i kontekst w transakcji, korzysta z tego samego filtrowanego zapytania co lista i ma limit 10 000 rekordów. Komórki zaczynające się od `=`, `+`, `-`, `@` lub znaku sterującego otrzymują apostrof, co ogranicza CSV formula injection. Eksport jest audytowany.
+
+Filtry mają limity długości i zamknięte listy statusów/ról/aktywności. Identyfikatory przechodzą walidację liczb całkowitych. Fragmenty sortowania, tabel i kolumn są wybierane wyłącznie z kodu, a wartości użytkownika trafiają do przygotowanych parametrów PDO. Znaki `%`, `_` i znak escape w wyszukiwaniu `LIKE` są neutralizowane.
+
+## Logo i baner
+
+Upload wymaga aktywnego ownera właściwej firmy albo globalnego admina pracującego w jej kontekście oraz POST z CSRF. Nazwa pliku jest losowana po stronie serwera. Aplikacja sprawdza błąd uploadu, `is_uploaded_file`, rozmiar do 5 MB, MIME z `fileinfo`, wynik `getimagesize`, wymiary do 4096 × 4096 i 8 mln pikseli oraz dostępność pamięci.
+
+JPEG, PNG i WebP są dekodowane przez GD i ponownie zapisywane, więc oryginalny plik nie jest publikowany. Brak GD lub obsługi kodeka kończy się kontrolowanym 503/422. Magazyn `storage/media` leży poza `public`, a endpoint wydaje tylko bezpieczną nazwę faktycznie zapisaną w `logo_path` albo `banner_path`. Symlinki magazynu są odrzucane przy zapisie i kasowaniu. Nowy plik jest usuwany po rollbacku; stary dopiero po udanym commitcie.
+
 ## Konfiguracja i ograniczenia weryfikacji
 
 Udostępniać wyłącznie public/. .env i kod aplikacji są poza DocumentRoot. APP_ENV=production wymaga HTTPS; bez TLS cookie Secure nie będzie wysyłane. Lokalny HTTP służy wyłącznie testom. Konto DB produkcji powinno mieć minimalne uprawnienia DML, odrębne od operatora migracji.
 
 Błędy pokazują neutralne 503, a log zapisuje tylko klasę i kod wyjątku, bez parametrów SQL, haseł, PIN-ów czy sesji. Nie ma zewnętrznych trackerów.
 
-Sprawdzono PHP, MariaDB, SQL, negatywne scenariusze i HTTP. Nie wykonywano audytu penetracyjnego, rzeczywistego HTTPS ani przeglądu wizualnego w przeglądarce. Brak potwierdzania e-maila i mailowego resetu to świadome ograniczenia Etapu 2.
+Weryfikacja wykonana dla Etapu 3 jest opisana w `ETAP_03_WYMAGANIA_I_TESTY.md`. Nie wykonywano audytu penetracyjnego ani testów rzeczywistego HTTPS. Uploady wymagają GD, którego nie ma w domyślnej konfiguracji CLI użytej do ostatniego uruchomienia testów. Brak potwierdzania e-maila i mailowego resetu pozostaje świadomym ograniczeniem; produkcyjny system powinien wdrożyć zweryfikowany kanał odzyskiwania.

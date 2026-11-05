@@ -1,5 +1,6 @@
 # book.it
 
+
 Aplikacja online: [bookit.freedev.app](https://bookit.freedev.app/)
 
 **book.it** to internetowa platforma do rezerwacji usług, która umożliwia klientom znalezienie firmy, zapoznanie się z jej ofertą oraz zarezerwowanie dostępnego terminu online.
@@ -168,7 +169,6 @@ Konta demonstracyjne są przeznaczone wyłącznie do testów lokalnych. PIN moż
 
 ![Diagram bazy danych](assets/diagram_baza.png)
 
-*Diagram przedstawia pierwotny schemat bazy danych z Etapu 1. Aktualny model uwzględnia również firmy, członkostwa i dodatkowe elementy systemu kont.*
 
 ## Dokumentacja
 
