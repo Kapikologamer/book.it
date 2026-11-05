@@ -6,7 +6,19 @@ function config(string $key, string $fallback = ''): string
     static $file;
     if ($file === null) {
         $path = dirname(__DIR__) . '/.env';
-        $file = is_file($path) ? parse_ini_file($path, false, INI_SCANNER_RAW) : [];
+        if (is_file($path)) {
+            $lines = file($path, FILE_IGNORE_NEW_LINES);
+            if ($lines === false) {
+                throw new RuntimeException('Invalid configuration');
+            }
+            $content = implode("\n", array_filter(
+                $lines,
+                static fn (string $line): bool => !str_starts_with(ltrim($line), '#')
+            ));
+            $file = parse_ini_string($content, false, INI_SCANNER_RAW);
+        } else {
+            $file = [];
+        }
         if ($file === false) {
             throw new RuntimeException('Invalid configuration');
         }

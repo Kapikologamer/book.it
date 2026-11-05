@@ -2,18 +2,22 @@
 declare(strict_types=1);
 
 $route = input($_GET, 'route') ?: 'home';
+require_once __DIR__ . '/management/controller.php';
+if ($route === 'media') {
+    require_once __DIR__ . '/media.php';
+    serve_company_media();
+}
 $routes = ['home', 'register/client', 'register/company', 'login', 'recovery', 'reset',
-    'account', 'password', 'pin', 'onboarding/client', 'onboarding/company', 'employee', 'admin', 'logout'];
+    'account', 'password', 'pin', 'onboarding/client', 'employee', 'logout'];
 $errors = [];
 $old = [];
 $user = isset($_SESSION['auth']) ? current_user(db()) : null;
-$company = null;
 $employeeCompanies = [];
 
 function deny(int $status, string $message): never
 {
     http_response_code($status);
-    $title = $status === 403 ? 'Brak dostępu' : 'Nie znaleziono strony';
+    $title = match ($status) { 403 => 'Brak dostępu', 404 => 'Nie znaleziono strony', 405 => 'Niedozwolona metoda', default => 'Niepoprawne żądanie' };
     $route = 'error';
     $user = null;
     require __DIR__ . '/views/layout.php';
@@ -21,21 +25,23 @@ function deny(int $status, string $message): never
 }
 
 if (!in_array($route, $routes, true)) {
-    deny(404, 'Taka strona nie istnieje.');
+    if (!in_array($route, management_routes(), true)) {
+        deny(404, 'Taka strona nie istnieje.');
+    }
 }
 if (!in_array($_SERVER['REQUEST_METHOD'], ['GET', 'POST'], true)) {
     header('Allow: GET, POST');
     deny(405, 'Niedozwolona metoda.');
 }
-$protected = ['account', 'password', 'pin', 'onboarding/client', 'onboarding/company', 'employee', 'admin', 'logout'];
+if (in_array($route, management_routes(), true)) {
+    management_handle($route, $user);
+}
+$protected = ['account', 'password', 'pin', 'onboarding/client', 'employee', 'logout'];
 if (in_array($route, $protected, true) && !$user) {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         deny(403, 'Zaloguj się, aby wykonać tę operację.');
     }
     redirect('login');
-}
-if ($route === 'admin' && $user['role'] !== 'admin') {
-    deny(403, 'Ta strona wymaga uprawnień administratora platformy.');
 }
 if ($route === 'employee') {
     $employeeCompanies = memberships(db(), (int) $user['id'], 'employee');
@@ -45,14 +51,6 @@ if ($route === 'employee') {
 }
 if ($route === 'onboarding/client' && ($user['role'] !== 'client' || memberships(db(), (int) $user['id'], 'owner'))) {
     deny(403, 'Ten obszar jest przeznaczony dla konta klienta.');
-}
-if ($route === 'onboarding/company') {
-    $owned = memberships(db(), (int) $user['id'], 'owner');
-    $requested = isset($_GET['company_id']) ? filter_var(input($_GET, 'company_id'), FILTER_VALIDATE_INT) : ($owned[0]['id'] ?? 0);
-    $company = company_access(db(), (int) $user['id'], (int) $requested, 'owner');
-    if (!$company) {
-        deny(403, 'Brak dostępu do tej firmy.');
-    }
 }
 if ($user && in_array($route, ['login', 'register/client', 'register/company', 'recovery', 'reset'], true)) {
     redirect(destination(db(), $user));
