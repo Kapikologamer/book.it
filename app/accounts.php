@@ -57,9 +57,9 @@ function destination(PDO $pdo, array $user): string
         return $owned[0]['onboarding_status'] === 'ready' ? 'company/dashboard' : 'onboarding/company';
     }
     if (memberships($pdo, (int) $user['id'], 'employee')) {
-        return 'employee';
+        return 'employee/reservations';
     }
-    return 'onboarding/client';
+    return 'client/reservations';
 }
 
 function registration_errors(array $data, bool $company): array

@@ -209,7 +209,7 @@ function management_readiness(PDO $pdo, array $company): array
 
 function management_view_data(PDO $pdo, array $ctx, string $module, string $mode, ?int $id, array $get): array
 {
-    $data = ['ctx' => $ctx, 'module' => $module, 'mode' => $mode, 'company' => null, 'companies' => [], 'rows' => [], 'total' => 0, 'page' => 1, 'per_page' => 25, 'record' => null, 'options' => [], 'assignments' => [], 'invitations' => [], 'readiness' => [], 'kpis' => [], 'charts' => [], 'recent' => []];
+    $data = ['ctx' => $ctx, 'module' => $module, 'mode' => $mode, 'company' => null, 'companies' => [], 'rows' => [], 'total' => 0, 'page' => 1, 'per_page' => 25, 'record' => null, 'options' => [], 'assignments' => [], 'invitations' => [], 'history' => [], 'readiness' => [], 'kpis' => [], 'charts' => [], 'recent' => []];
     $data['companies'] = $ctx['admin'] ? query($pdo, 'SELECT id,name,active,onboarding_status FROM companies ORDER BY name,id')->fetchAll() : memberships($pdo, (int) $ctx['user']['id'], 'owner');
     if ($ctx['company_id']) {
         $data['company'] = query($pdo, 'SELECT * FROM companies WHERE id=?', [$ctx['company_id']])->fetch();
@@ -239,6 +239,9 @@ function management_view_data(PDO $pdo, array $ctx, string $module, string $mode
         $data['record'] = query($pdo, $detail['sql'], $detail['params'])->fetch();
         if (!$data['record']) {
             throw new ManagementError('Nie znaleziono rekordu w tym obszarze.', 404);
+        }
+        if ($module === 'reservations') {
+            $data['history'] = query($pdo, "SELECT h.*,CONCAT(u.name,' ',u.surname) actor_name FROM reservation_history h JOIN users u ON u.id=h.actor_id WHERE h.reservation_id=? ORDER BY h.created_at,h.id", [$id])->fetchAll();
         }
     }
     $cid = $ctx['company_id'];

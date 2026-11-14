@@ -107,3 +107,39 @@ if (companyName && companyInitials) {
         companyInitials.textContent = words.map((word) => Array.from(word)[0] || '').join('').toLocaleUpperCase('pl') || 'BI';
     });
 }
+
+const bookingDateForm = document.querySelector('[data-booking-date]');
+if (bookingDateForm) {
+    const dateInput = bookingDateForm.querySelector('[name="date"]');
+    const preview = document.querySelector('[data-slot-preview]');
+    let request = null;
+    dateInput.addEventListener('change', async () => {
+        if (!dateInput.value || !preview) return;
+        if (request) request.abort();
+        request = new AbortController();
+        preview.replaceChildren();
+        const status = document.createElement('p');
+        status.textContent = 'Sprawdzamy wolne godziny…';
+        preview.append(status);
+        const params = new URLSearchParams({
+            route: 'booking/slots', service_id: bookingDateForm.elements.service_id.value,
+            employee_id: bookingDateForm.elements.employee_id.value, date: dateInput.value,
+        });
+        try {
+            const response = await fetch(`./index.php?${params}`, { signal: request.signal, headers: { Accept: 'application/json' } });
+            if (!response.ok) throw new Error('request');
+            const data = await response.json();
+            if (data.date !== dateInput.value) return;
+            preview.replaceChildren();
+            const message = document.createElement('p');
+            message.textContent = data.slots.length ? `Dostępne godziny: ${data.slots.map((slot) => slot.start).join(', ')}. Przejdź dalej, aby wybrać.` : 'Brak wolnych terminów tego dnia.';
+            preview.append(message);
+        } catch (error) {
+            if (error.name === 'AbortError') return;
+            preview.replaceChildren();
+            const message = document.createElement('p');
+            message.textContent = 'Nie udało się odświeżyć godzin. Użyj przycisku „Pokaż godziny”.';
+            preview.append(message);
+        }
+    });
+}

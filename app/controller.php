@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 $route = input($_GET, 'route') ?: 'home';
 require_once __DIR__ . '/management/controller.php';
+require_once __DIR__ . '/booking/controller.php';
 if ($route === 'media') {
     require_once __DIR__ . '/media.php';
     serve_company_media();
@@ -25,13 +26,16 @@ function deny(int $status, string $message): never
 }
 
 if (!in_array($route, $routes, true)) {
-    if (!in_array($route, management_routes(), true)) {
+    if (!in_array($route, management_routes(), true) && !in_array($route, booking_routes(), true)) {
         deny(404, 'Taka strona nie istnieje.');
     }
 }
 if (!in_array($_SERVER['REQUEST_METHOD'], ['GET', 'POST'], true)) {
     header('Allow: GET, POST');
     deny(405, 'Niedozwolona metoda.');
+}
+if (in_array($route, booking_routes(), true)) {
+    booking_handle($route, $user);
 }
 if (in_array($route, management_routes(), true)) {
     management_handle($route, $user);
@@ -48,9 +52,13 @@ if ($route === 'employee') {
     if (!$employeeCompanies) {
         deny(403, 'Brak aktywnego członkostwa pracownika.');
     }
+    redirect('employee/reservations');
 }
 if ($route === 'onboarding/client' && ($user['role'] !== 'client' || memberships(db(), (int) $user['id'], 'owner'))) {
     deny(403, 'Ten obszar jest przeznaczony dla konta klienta.');
+}
+if ($route === 'onboarding/client' && $user) {
+    redirect('client/reservations');
 }
 if ($user && in_array($route, ['login', 'register/client', 'register/company', 'recovery', 'reset'], true)) {
     redirect(destination(db(), $user));
@@ -78,7 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {
                 $newUser = register_account(db(), $_POST, $isCompany);
                 establish_login($newUser);
-                redirect($isCompany ? 'onboarding/company' : 'onboarding/client');
+                redirect($isCompany ? 'onboarding/company' : 'client/reservations');
             } catch (PDOException $exception) {
                 if (($exception->errorInfo[1] ?? null) !== 1062) {
                     throw $exception;
