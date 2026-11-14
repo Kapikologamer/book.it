@@ -65,3 +65,15 @@ Udostępniać wyłącznie public/. .env i kod aplikacji są poza DocumentRoot. A
 Błędy pokazują neutralne 503, a log zapisuje tylko klasę i kod wyjątku, bez parametrów SQL, haseł, PIN-ów czy sesji. Nie ma zewnętrznych trackerów.
 
 Weryfikacja wykonana dla Etapu 3 jest opisana w `ETAP_03_WYMAGANIA_I_TESTY.md`. Nie wykonywano audytu penetracyjnego ani testów rzeczywistego HTTPS. Uploady wymagają GD, którego nie ma w domyślnej konfiguracji CLI użytej do ostatniego uruchomienia testów. Brak potwierdzania e-maila i mailowego resetu pozostaje świadomym ograniczeniem; produkcyjny system powinien wdrożyć zweryfikowany kanał odzyskiwania.
+# Etap 4 — model zagrożeń rezerwacji (aktualizacja 2026-11-14)
+
+- IDOR: każdy szczegół/cancel/reschedule jest filtrowany po `user_id`; pracownik po własnym `employees.user_id`; owner/admin po zweryfikowanym kontekście firmy.
+- CSRF i allowlista pól obowiązują na każdym POST. Serwer ignoruje jako źródło prawdy cenę, duration, end, status i user ID klienta.
+- Race condition: `SELECT employees ... FOR UPDATE`, ponowne obliczenie slotu i INSERT/historia w jednej transakcji. Ten sam lock jest używany przez przełożenie, statusy oraz zmiany grafiku/time-off.
+- Konflikty używają `start < other_end AND end > other_start`; sam indeks/UNIQUE nie jest zabezpieczeniem częściowego nakładania.
+- Idempotencja: 256-bitowy losowy `booking_token` ma UNIQUE i jest przypisany do właściciela rezerwacji.
+- Prywatność: publiczny endpoint slotów zwraca tylko datę oraz początek/koniec, bez danych klientów i powodów nieobecności. Telefon klienta widzi wyłącznie przypisany pracownik oraz uprawniony management.
+- XSS: dane DB są escapowane przez `e()`, a JSON kodowany przez `json_encode`; CSP nie wymaga inline JavaScript.
+- DST: przy lokalnym modelu DATE/TIME dni zmiany offsetu są wyłączone, aby nie dopuścić dwóch znaczeń tej samej godziny.
+- Błędy domenowe zwracają kontrolowane 403/404/409/422; globalny handler nie pokazuje SQL ani parametrów.
+
