@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/domain.php';
 require_once __DIR__ . '/read.php';
+require_once __DIR__ . '/../booking/domain.php';
 
 function management_redirect(string $route, array $params = []): never
 {

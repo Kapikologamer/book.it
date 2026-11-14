@@ -19,8 +19,10 @@ unset($_SESSION['flash']);
 <header class="site-header"><div class="container header-content">
     <a class="logo" href="./index.php" aria-label="book.it — strona główna">book<span>.it</span></a>
     <nav aria-label="Główna nawigacja">
+        <a href="<?= url('companies') ?>">Firmy i usługi</a>
     <?php if ($user): ?>
         <a href="<?= url(destination(db(), $user)) ?>">Mój obszar</a>
+        <?php if ($user['role'] !== 'admin'): ?><a href="<?= url('client/reservations') ?>">Moje rezerwacje</a><?php endif ?>
         <a href="<?= url('account') ?>">Moje konto</a>
         <a href="<?= url('account/invitations') ?>">Zaproszenia</a>
         <form action="<?= url('logout') ?>" method="post" class="inline-form"><?= csrf_field() ?><button class="link-button">Wyloguj</button></form>
@@ -32,14 +34,16 @@ unset($_SESSION['flash']);
 </div></header>
 <main id="main">
 <?php if ($notice): ?><div class="container notice" role="status"><?= e($notice) ?></div><?php endif ?>
-<?php if (isset($management)): ?>
+<?php if (isset($booking)): ?>
+<?php require __DIR__ . '/booking.php'; ?>
+<?php elseif (isset($management)): ?>
 <?php require __DIR__ . '/management.php'; ?>
 <?php elseif ($route === 'home'): ?>
 <section class="hero"><div class="container hero-content">
     <div class="hero-copy"><p class="eyebrow">Klienci i niezależne firmy</p>
         <h1>Twoje plany.<br>Jedno miejsce.</h1>
-        <p class="hero-text">Zacznij od konta. Tworzymy miejsce, które połączy Cię z usługami wielu firm — prosto i wygodnie.</p>
-        <div class="actions"><a class="button" href="<?= url('register/client') ?>">Załóż konto klienta</a>
+        <p class="hero-text">Odkrywaj usługi niezależnych firm i rezerwuj prawdziwe wolne terminy z jednego konta.</p>
+        <div class="actions"><a class="button" href="<?= url('companies') ?>">Przeglądaj firmy</a><a class="button secondary" href="<?= url('register/client') ?>">Załóż konto klienta</a>
         <a class="button secondary" href="<?= url('register/company') ?>">Zarejestruj firmę</a></div>
         <p class="muted">Masz już konto? <a href="<?= url('login') ?>">Zaloguj się</a></p>
     </div>
@@ -47,7 +51,7 @@ unset($_SESSION['flash']);
         <ol class="steps"><li><strong>Utwórz konto</strong><span>Jako klient lub właściciel firmy.</span></li>
         <li><strong>Zadbaj o dostęp</strong><span>Ustaw hasło i stały PIN bezpieczeństwa.</span></li>
         <li><strong>Uzupełnij podstawowe dane</strong><span>Edytuj swoje imię, nazwisko i telefon.</span></li></ol>
-        <p class="muted">Katalog usług i rezerwowanie terminów pojawią się w kolejnych etapach.</p>
+        <p class="muted">Terminy uwzględniają grafik, przerwy, urlopy i trwające rezerwacje.</p>
     </aside>
 </div></section>
 <section class="section container"><div class="section-heading"><p class="eyebrow">book.it</p><h2>Jedna platforma, różne potrzeby.</h2></div>
@@ -103,9 +107,9 @@ endif ?>
 <div class="identity"><span class="avatar"><?= e(initials($user)) ?></span><div><h2>Cześć, <?= e($user['name']) ?>!</h2><p class="muted"><?= e($user['email']) ?></p></div></div>
 <?php if (!$user['pin_hash']): ?><p class="notice">Twoje konto nie ma jeszcze PIN-u. <a href="<?= url('pin') ?>">Ustaw go po potwierdzeniu hasła</a>, aby umożliwić odzyskiwanie dostępu.</p><?php endif ?>
 <?php if ($route === 'onboarding/client'): ?>
-<article class="feature-card"><h2>Nick / avatar — konfiguracja w przygotowaniu</h2><p>Na razie Twoim avatarem są inicjały. Podstawowe dane możesz już zmieniać w ustawieniach konta.</p></article>
+<article class="feature-card"><h2>Twoje rezerwacje</h2><p>Przeglądaj firmy, wybieraj terminy i zarządzaj własnymi wizytami.</p><a class="button" href="<?= url('client/reservations') ?>">Otwórz rezerwacje</a></article>
 <?php elseif ($route === 'employee'): ?>
-<div class="feature-card"><h2>Twój zespół</h2><ul><?php foreach ($employeeCompanies as $item): ?><li><?= e($item['name']) ?></li><?php endforeach ?></ul><p>Grafik i obsługa rezerwacji pojawią się w kolejnych etapach.</p></div>
+<div class="feature-card"><h2>Twoje wizyty</h2><ul><?php foreach ($employeeCompanies as $item): ?><li><?= e($item['name']) ?></li><?php endforeach ?></ul><a class="button" href="<?= url('employee/reservations') ?>">Otwórz terminarz</a></div>
 <?php endif ?>
 <p><a class="button" href="<?= url('account') ?>">Przejdź do ustawień konta</a></p>
 </section>

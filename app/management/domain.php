@@ -331,6 +331,7 @@ function management_schedule(PDO $pdo, array $ctx, string $module, string $actio
     }
     // Future booking writers must lock this employee before checking and inserting a reservation.
     $employee = management_row($pdo, 'employees', $employeeId);
+    management_sql($pdo, 'SELECT id FROM employees WHERE id=? FOR UPDATE', [$employeeId])->fetchColumn();
     $companyId = (int) $employee['company_id'];
     management_company($pdo, $ctx, $companyId);
     if ($action === 'delete') {
@@ -408,8 +409,11 @@ function management_check_coverage(PDO $pdo, int $employeeId, int $excludedId, ?
 
 function management_reservation(PDO $pdo, array $ctx, string $action, int $id, array $data): void
 {
+    $identity = management_sql($pdo, 'SELECT employee_id FROM reservations WHERE id=?', [$id])->fetch(PDO::FETCH_ASSOC);
+    if (!$identity) { throw new ManagementError('Nie znaleziono rekordu.', 404); }
+    management_sql($pdo, 'SELECT id FROM employees WHERE id=? FOR UPDATE', [(int) $identity['employee_id']])->fetchColumn();
     $row = management_row($pdo, 'reservations', $id);
-    $employee = management_row($pdo, 'employees', (int) $row['employee_id']);
+    $employee = management_sql($pdo, 'SELECT * FROM employees WHERE id=?', [(int) $row['employee_id']])->fetch(PDO::FETCH_ASSOC);
     $service = management_row($pdo, 'services', (int) $row['service_id']);
     $companyId = (int) $employee['company_id'];
     management_company($pdo, $ctx, $companyId);
@@ -417,20 +421,11 @@ function management_reservation(PDO $pdo, array $ctx, string $action, int $id, a
         throw new ManagementError('Niespójne powiązanie rezerwacji.', 409);
     }
     $status = management_text($data, 'status', 20, true);
-    $transitions = ['pending' => ['confirmed', 'cancelled'], 'confirmed' => ['completed', 'cancelled']];
-    if (!in_array($status, $transitions[$row['status']] ?? [], true)) {
-        throw new ManagementError('Niedozwolona zmiana statusu rezerwacji.', 409, 'status');
+    try {
+        booking_change_status($pdo, $id, (int) $ctx['user']['id'], $status);
+    } catch (BookingError $exception) {
+        throw new ManagementError($exception->getMessage(), $exception->status, $exception->field);
     }
-    if ($status === 'confirmed') {
-        management_check_coverage($pdo, (int) $employee['id'], 0, null);
-        $start = $row['reservation_date'] . ' ' . $row['start_time'];
-        $end = $row['reservation_date'] . ' ' . $row['end_time'];
-        if (management_sql($pdo, 'SELECT id FROM employee_time_off WHERE employee_id = ? AND starts_at < ? AND ends_at > ? LIMIT 1 FOR UPDATE', [$employee['id'], $end, $start])->fetchColumn()
-            || management_sql($pdo, "SELECT id FROM reservations WHERE employee_id = ? AND id <> ? AND reservation_date = ? AND status IN ('pending','confirmed') AND start_time < ? AND end_time > ? LIMIT 1 FOR UPDATE", [$employee['id'], $id, $row['reservation_date'], $row['end_time'], $row['start_time']])->fetchColumn()) {
-            throw new ManagementError('Rezerwacja koliduje z inną wizytą lub nieobecnością.', 409);
-        }
-    }
-    management_sql($pdo, 'UPDATE reservations SET status = ? WHERE id = ?', [$status, $id]);
     management_audit($pdo, $ctx, 'reservations', $id, 'status', $row['status'] . ' -> ' . $status, $companyId);
 }
 

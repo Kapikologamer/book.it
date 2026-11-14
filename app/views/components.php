@@ -6,6 +6,21 @@ function url(string $route): string
     return './index.php?route=' . rawurlencode($route);
 }
 
+function route_url(string $route, array $params = []): string
+{
+    return './index.php?' . http_build_query(['route' => $route] + $params);
+}
+
+function status_label(string $status): string
+{
+    return ['pending' => 'Oczekująca', 'confirmed' => 'Potwierdzona', 'completed' => 'Zrealizowana', 'cancelled' => 'Anulowana'][$status] ?? $status;
+}
+
+function money_pl(mixed $value): string
+{
+    return $value === null ? 'Cena historyczna nieznana' : number_format((float) $value, 2, ',', ' ') . ' zł';
+}
+
 function csrf_field(): string
 {
     return '<input type="hidden" name="csrf" value="' . e(csrf_token()) . '">';
