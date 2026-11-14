@@ -77,3 +77,13 @@ Stan `recovery` jest oddzielnym, pięciominutowym grantem do ustawienia hasła. 
 ## Świadome ograniczenia
 
 `employees.user_id` pozostaje unikalne, więc jedno konto może mieć profil pracownika tylko w jednej firmie. System administruje istniejącymi rezerwacjami, ale nie tworzy ich po stronie klienta. Wyznaczanie slotów, transakcyjna rezerwacja i pełny panel pracownika należą do Etapu 4.
+# Etap 4 — katalog i rezerwacje (aktualizacja 2026-11-14)
+
+Router `app/controller.php` deleguje trasy katalogu, rezerwacji klienta i wizyt pracownika do `app/booking/controller.php`. `read.php` zawiera wyłącznie scope'owane odczyty, a `domain.php` jest jednym źródłem prawdy dla dostępności, zapisu, statusów i przełożenia. Widoki korzystają ze wspólnego `layout.php`; `public/js/app.js` jest progressive enhancement.
+
+Tenant rezerwacji wynika z pary pracownik–usługa w `employee_services.company_id`; złożone FK nie pozwalają połączyć encji różnych firm. Klient jest scope'owany po `reservations.user_id`, pracownik po `employees.user_id`, owner po aktywnym membership, admin przez istniejący kontekst management. Owner/employee mogą równocześnie działać jako klient własnego konta.
+
+Wszystkie zapisy terminu serializują się na `employees FOR UPDATE`. Tworzenie i przełożenie ponownie uruchamiają wspólny silnik pod blokadą. Zmiany grafiku/time-off również blokują pracownika, co ustala porządek względem bookowania. Statusy ownera/admina przeszły na wspólny serwis i nadal zapisują `admin_audit_logs`.
+
+Kontrakt i endpointy opisuje [REZERWACJE.md](REZERWACJE.md).
+

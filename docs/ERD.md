@@ -250,3 +250,26 @@ Testy wykonano klientem SQL na odizolowanej instancji MariaDB 10.4.32 w katalogu
 | Import na MySQL oraz innych wersjach MariaDB | NOT RUN — przetestowano wyłącznie lokalną MariaDB 10.4.32 |
 
 To weryfikacja kontraktu bazy, nie potwierdzenie działania interfejsu, autoryzacji ani pełnego Etapu 3. Przed migracją rzeczywistych danych nadal obowiązują kopia zapasowa, preflight i próba na kopii konkretnej instalacji.
+# Aktualizacja Etapu 4 (2026-11-14)
+
+`assets/diagram_baza.png` jest diagramem **archiwalnym** i nie przedstawia tabel Etapu 3/4. Aktualnym źródłem prawdy jest `database/database.sql`, migracje i poniższa relacja.
+
+```text
+users 1 ───< reservations >─── 1 employees
+                    │                 │
+                    ├── service_id ──> services
+                    │                 │
+                    └── (employee_id, service_id)
+                         ────────────> employee_services(company_id)
+
+reservations 1 ───< reservation_history >─── 1 users(actor_id)
+```
+
+Zmiany 004:
+
+- `reservations.booking_token CHAR(64) NULL UNIQUE` — trwała idempotencja potwierdzenia;
+- indeks `(employee_id, reservation_date, status, start_time, end_time)` pod sprawdzanie przeszkód;
+- `reservation_history`: PK `id`; FK do rezerwacji i aktora z `ON DELETE RESTRICT`; akcja, stare/nowe statusy, stare/nowe terminy i czas zdarzenia.
+
+Historia nie znika kaskadowo. `price_snapshot NULL` nadal oznacza nieznaną cenę historyczną. Rezerwacja nie przechowuje `company_id`; firma jest jednoznaczna dzięki złożonym FK pary employee–service.
+
